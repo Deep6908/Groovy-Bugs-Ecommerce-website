@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;700&family=Inter:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --retro-yellow: #fff;
+    --retro-teal: #6c4f8c;
+    --retro-pink: #6c4f8c;
+    --retro-blue: #23243a;
+    --retro-offwhite: #fff;
+    --main-bg: #0a0a0a;
+    --main-purple: #6c4f8c;
+    --main-white: #fff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body {
+    @apply bg-black text-white min-h-screen;
+    background: #000000;
+    line-height: 1.6;
+    font-family: 'Share Tech Mono', 'Roboto Mono', 'Consolas', monospace;
+  }
+
+  #root {
+    min-height: 100vh;
+    background: #000000;
+  }
+
+  h1, h2, h3 {
+    @apply font-mono;
+    letter-spacing: 2px;
+  }
+}
+
+@layer components {
+  .section {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12;
+  }
+
+  .section-title {
+    @apply font-mono text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center uppercase mb-8 sm:mb-12;
+    letter-spacing: 0.2em;
+  }
+
+  .btn-primary {
+    @apply font-mono text-sm sm:text-base border-2 border-groovy-purple bg-groovy-purple text-white rounded-full px-4 sm:px-6 py-2 sm:py-3 font-bold cursor-pointer transition-all duration-200 hover:bg-white hover:text-groovy-purple active:scale-95;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(108, 79, 140, 0.08);
+  }
+
+  .btn-secondary {
+    @apply font-mono text-sm sm:text-base border-2 border-groovy-purple bg-transparent text-groovy-purple rounded-full px-4 sm:px-6 py-2 sm:py-3 font-bold cursor-pointer transition-all duration-200 hover:bg-groovy-purple hover:text-white active:scale-95;
+    letter-spacing: 1px;
+  }
+
+  .product-card {
+    @apply bg-gray-900 rounded-lg overflow-hidden flex flex-col items-center transition-all duration-300 hover:transform hover:-translate-y-3 hover:scale-105 min-w-0 shadow-lg;
+  }
+
+  .product-card:hover {
+    box-shadow: 0 12px 36px rgba(108, 79, 140, 0.3), 0 0 0 8px rgba(255,255,255,0.1) inset;
+    z-index: 2;
+  }
+
+  .grain-overlay {
+    @apply pointer-events-none fixed top-0 left-0 w-full h-full z-50 opacity-20;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.03) 2px,
+      rgba(255,255,255,0.03) 4px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* Navbar White Shadow */
+  .navbar-shadow {
+    box-shadow: 0 4px 18px 0 rgba(255,255,255,0.09);
+    /* subtle white shadow */
+    z-index: 45;
+  }
+
+  /* Info Card Subtle Purple Glow */
+  .info-card-glow {
+    background: #181922;
+    border-radius: 0;
+    box-shadow: 0 8px 32px 0 rgba(108,79,140,0.18), 0 2px 8px 0 rgba(108,79,140,0.11);
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    transition: box-shadow 0.3s;
+  }
+
+  /* Collection Card Glow Animation */
+  .collection-card {
+    position: relative;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px 0 rgba(108,79,140,0.14);
+    border: 2px solid transparent;
+    background: #191a22;
+    transition: box-shadow 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s, transform 0.3s;
+    overflow: hidden;
+  }
+  .collection-card:hover {
+    box-shadow: 0 0 16px 4px rgba(108,79,200,0.18), 0 0 32px 8px rgba(108,79,200,0.11);
+    border-color: #bba2e7;
+    animation: pulse-glow 1.2s infinite alternate;
+    z-index: 2;
+    transform: scale(1.03) translateY(-3px) rotate(-0.5deg);
+  }
+  @keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 16px 4px rgba(108,79,200,0.18), 0 0 32px 8px rgba(108,79,200,0.11);
+      border-color: #bba2e7;
+    }
+    100% {
+      box-shadow: 0 0 24px 8px rgba(180,130,255,0.18), 0 0 48px 12px rgba(180,130,255,0.13);
+      border-color: #d4c2f8;
+    }
+  }
+
+
+  .info-card-glow .p-4,
+  .info-card-glow .sm\:p-6 {
+    padding: 1.5rem 1.5rem 1.5rem 1.5rem !important;
+  }
+
+  .info-card-glow h3 {
+    color: #fff;
+    font-family: 'Montserrat', 'Share Tech Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: left;
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+  }
+
+  .info-card-glow p {
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    font-weight: 400;
+    text-align: left;
+    letter-spacing: 0.03em;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+
+
+
+  /* Original HeroSlider Styles */
+  .hero-slider-section {
+    position: relative;
+    width: 100%;
+    min-height: 60vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000 !important;
+  }
+
+  .slider-wrapper {
+    width: 100vw;
+    height: 60vh;
+    overflow: hidden;
+    position: absolute;
+    top: 0; 
+    left: 0;
+    z-index: 1;
+  }
+
+  .slider-track {
+    display: flex;
+    height: 100%;
+    transition: transform 1s cubic-bezier(0.77,0,0.18,1);
+  }
+
+  .slider-image {
+    width: 100vw;
+    height: 60vh;
+    object-fit: cover;
+    flex-shrink: 0;
+    filter: brightness(0.7) contrast(1.1);
+  }
+
+  .hero-slider-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    text-align: center;
+    color: #fff;
+    margin: 0 auto;
+  }
+
+  .hero-slider-content h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 #000, 0 0 8px #ff3c6f44;
+  }
+
+  .hero-slider-content p {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+    text-shadow: 1px 1px 0 #000;
+  }
+
+  @media (max-width: 800px) {
+    .slider-image, .slider-wrapper {
+      height: 40vh;
+    }
+    .hero-slider-content h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .pop {
+    animation: popIn 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6c4f8c;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8a6db0;
+}
+
+/* Toast customization */
+.Toastify__toast {
+  background: #232323 !important;
+  color: white !important;
+  border: 1px solid #6c4f8c !important;
+  border-radius: 12px !important;
+}
+
+.Toastify__toast--success {
+  background: #232323 !important;
+}
+
+.Toastify__toast--error {
+  background: #232323 !important;
+}
+
+.Toastify__progress-bar {
+  background: #6c4f8c !important;
+}
+
+/* Ensure all text is visible */
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
