@@ -1,11 +1,38 @@
 import React from "react";
 import { Link } from "react-router-dom"; // Make sure Link is imported
 import { useCart } from "../context/CartContext";
+import { toast } from "react-toastify";
+import { buildWhatsAppOrderUrl } from "../services/whatsapp";
 
 const CartPage = () => {
   const { getGroupedCart, removeFromCart, updateQuantity, getCartTotal } = useCart();
   const groupedItems = getGroupedCart();
   const total = getCartTotal();
+
+  const handleBuyOnWhatsApp = () => {
+    if (groupedItems.length === 0) {
+      toast.error("Your cart is empty.", { theme: "dark" });
+      return;
+    }
+
+    const orderItems = groupedItems.map((item) => ({
+      name: item.name,
+      size: item.size,
+      quantity: item.quantity,
+    }));
+
+    const whatsappUrl = buildWhatsAppOrderUrl({
+      items: orderItems,
+      total,
+    });
+
+    if (!whatsappUrl) {
+      toast.error("Set VITE_WHATSAPP_ORDER_NUMBER to enable WhatsApp orders.", { theme: "dark" });
+      return;
+    }
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <section className="min-h-screen bg-main-bg py-20 px-6">
@@ -105,8 +132,14 @@ const CartPage = () => {
                 </div>
               </div>
 
-              <button className="w-full bg-main-purple text-white border-none rounded-2xl py-4 text-lg font-bold cursor-pointer hover:bg-purple-600 transition-colors duration-200 font-mono tracking-wider">
+              <button className="w-full bg-main-purple text-white border-none rounded-2xl py-4 text-lg font-bold cursor-pointer hover:bg-purple-600 transition-colors duration-200 font-mono tracking-wider mb-3">
                 PROCEED TO CHECKOUT
+              </button>
+              <button
+                className="w-full bg-green-600 text-white border-none rounded-2xl py-4 text-lg font-bold cursor-pointer hover:bg-green-500 transition-colors duration-200 font-mono tracking-wider"
+                onClick={handleBuyOnWhatsApp}
+              >
+                BUY ON WHATSAPP
               </button>
             </div>
           </div>

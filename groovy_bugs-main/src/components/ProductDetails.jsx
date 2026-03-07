@@ -17,6 +17,12 @@ const TeesSizes = [
     { value: "XL", label: "XL" },
     { value: "XXL", label: "XXL" }
 ];
+const teeFits = [
+    { value: "Regular Fit", label: "Regular Fit" },
+    { value: "Oversized Fit", label: "Oversized Fit" }
+];
+const DEFAULT_OVERSIZED_PREMIUM = 100;
+
 const ProductDetails = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -26,6 +32,7 @@ const ProductDetails = () => {
     // Renamed 'size' to 'selectedPosterSize' for clarity and added 'selectedTeeSize'
     const [selectedPosterSize, setSelectedPosterSize] = useState(posterSizes[0].value);
     const [selectedTeeSize, setSelectedTeeSize] = useState(TeesSizes[0].value);
+    const [selectedTeeFit, setSelectedTeeFit] = useState(teeFits[0].value);
     
     // Destructure `addToCart` from useCart and alias it to `contextAddToCart`
     const { addToCart: contextAddToCart } = useCart();
@@ -98,6 +105,10 @@ const ProductDetails = () => {
     const isPosterCategory = product.category && product.category.toLowerCase().includes("poster");
     const isTeeCategory = product.category && product.category.toLowerCase().includes("tee");
 
+    const regularFitPrice = Number(product.price) || 0;
+    const oversizedFitPrice = regularFitPrice + (Number(product.oversizedPremium) || DEFAULT_OVERSIZED_PREMIUM);
+    const selectedTeePrice = selectedTeeFit === "Oversized Fit" ? oversizedFitPrice : regularFitPrice;
+
     const handleAddToCart = async () => {
         if (!isSignedIn) {
             toast.warn("Please sign in or sign up to add items to your cart.", {
@@ -119,14 +130,14 @@ const ProductDetails = () => {
         if (isPosterCategory) {
             selectedSize = selectedPosterSize;
         } else if (isTeeCategory) {
-            selectedSize = selectedTeeSize;
+            selectedSize = `${selectedTeeFit} / ${selectedTeeSize}`;
         }
 
         // Construct the item object as expected by CartContext's addToCart
         const itemToAdd = {
             _id: product._id || product.id, // Use _id for consistency with MongoDB IDs
             name: product.name,
-            price: product.price,
+            price: isTeeCategory ? selectedTeePrice : product.price,
             image: product.image,
             size: selectedSize, // Include the determined size
         };
@@ -191,7 +202,7 @@ const ProductDetails = () => {
 
                             <div className="flex items-center gap-4 mb-6">
                                 <span className="text-3xl font-bold text-white font-mono">
-                                    ₹{product.price}
+                                    ₹{isTeeCategory ? selectedTeePrice : product.price}
                                 </span>
                                 {product.originalPrice && (
                                     <span className="text-xl text-gray-400 line-through font-mono">
@@ -227,6 +238,20 @@ const ProductDetails = () => {
                         {/* Size Selection for Tees */}
                         {isTeeCategory && (
                             <div className="space-y-3">
+                                <label htmlFor="tee-fit-select" className="block text-white font-medium font-mono text-lg">
+                                    Fit
+                                </label>
+                                <select
+                                    id="tee-fit-select"
+                                    value={selectedTeeFit}
+                                    onChange={e => setSelectedTeeFit(e.target.value)}
+                                    className="w-full py-3 px-4 rounded-lg border-2 border-main-purple bg-gray-800 text-white text-base font-mono focus:border-purple-400 focus:outline-none"
+                                >
+                                    {teeFits.map(opt => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </select>
+
                                 <label htmlFor="tee-size-select" className="block text-white font-medium font-mono text-lg">
                                     Size
                                 </label>
@@ -240,6 +265,10 @@ const ProductDetails = () => {
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
+
+                                <p className="text-sm text-gray-300 font-mono">
+                                    Regular Fit: ₹{regularFitPrice} | Oversized Fit: ₹{oversizedFitPrice}
+                                </p>
                             </div>
                         )}
 

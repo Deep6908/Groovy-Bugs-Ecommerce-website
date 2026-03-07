@@ -19,6 +19,26 @@ const collections = [
     // Changed path to reference from the public root
     image: "src/images/collection-tote.jpg",
     link: "/tote-bags"
+  },
+  {
+    name: "Accessories",
+    image: "src/images/collection-merch.jpg",
+    link: "/accessories"
+  },
+  {
+    name: "Pouch Bags",
+    image: "src/images/collection-tote.jpg",
+    link: "/pouch-bags"
+  },
+  {
+    name: "Crop Tops",
+    image: "src/images/collection-merch.jpg",
+    link: "/crop-tops"
+  },
+  {
+    name: "Customise",
+    image: "src/images/collection-posters.jpg",
+    link: "/customise"
   }
 ];
 
