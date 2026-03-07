@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { cartAPI, orderAPI } from "../services/api";
+import { buildWhatsAppOrderUrl } from "../services/whatsapp";
 import emailjs from '@emailjs/browser';
 import { IoClose, IoTrashOutline, IoBookOutline, IoLocationOutline, IoCheckmarkCircle, IoAlertCircle } from "react-icons/io5";
 
@@ -120,6 +121,31 @@ const CartSidebar = ({ isOpen, onClose }) => {
         }
     };
 
+    const handleBuyOnWhatsApp = () => {
+        if (groupedItems.length === 0) {
+            toast.error("Your cart is empty.", { theme: "dark" });
+            return;
+        }
+
+        const orderItems = groupedItems.map((item) => ({
+            name: item.name,
+            size: item.size,
+            quantity: item.quantity,
+        }));
+
+        const whatsappUrl = buildWhatsAppOrderUrl({
+            items: orderItems,
+            total,
+        });
+
+        if (!whatsappUrl) {
+            toast.error("Set VITE_WHATSAPP_ORDER_NUMBER to enable WhatsApp orders.", { theme: "dark" });
+            return;
+        }
+
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    };
+
     // --- Styling classes for a polished UI ---
     const formInputClass = "w-full bg-gray-800 border-2 border-gray-700 rounded-lg text-white p-2.5 text-sm font-mono placeholder-gray-500 focus:border-main-purple focus:ring-2 focus:ring-purple-900/50 focus:outline-none transition-colors";
     const formLabelClass = "block text-xs font-medium text-gray-400 mb-1.5 font-mono uppercase tracking-wider";
@@ -226,6 +252,12 @@ const CartSidebar = ({ isOpen, onClose }) => {
 
                             {/* Checkout Actions */}
                             <div className="mt-6 flex flex-col gap-3">
+                                <button
+                                    className="w-full bg-green-600 hover:bg-green-500 text-white rounded-lg py-3.5 text-base font-bold cursor-pointer text-center transition-all font-mono tracking-wider"
+                                    onClick={handleBuyOnWhatsApp}
+                                >
+                                    BUY ON WHATSAPP
+                                </button>
                                 <button
                                     className={`${buttonPrimaryClass} ${isCheckingOut ? 'bg-purple-900 animate-pulse' : 'bg-main-purple hover:bg-purple-600'}`}
                                     onClick={handleCheckout}

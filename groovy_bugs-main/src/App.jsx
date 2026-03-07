@@ -14,7 +14,11 @@ import ProductSlider from "./components/ProductSlider";
 import CollectionsPage from "./components/CollectionsPage";
 import PostersPage from "./components/PostersPage";
 import ToteBagsPage from "./components/ToteBagsPage";
+import AccessoriesPage from "./components/AccessoriesPage";
+import PouchBagsPage from "./components/PouchBagsPage";
+import CropTopsPage from "./components/CropTopsPage";
 import TeesPage from "./components/TeesPage";
+import CustomisePage from "./components/CustomisePage";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import UserProfile from "./components/UserProfile";
@@ -133,7 +137,11 @@ function AppContent() {
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/posters" element={<PostersPage />} />
               <Route path="/tote-bags" element={<ToteBagsPage />} />
+              <Route path="/accessories" element={<AccessoriesPage />} />
+              <Route path="/pouch-bags" element={<PouchBagsPage />} />
+              <Route path="/crop-tops" element={<CropTopsPage />} />
               <Route path="/tees" element={<TeesPage />} />
+              <Route path="/customise" element={<CustomisePage />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 

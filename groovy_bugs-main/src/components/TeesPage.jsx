@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { productAPI } from "../services/api"; // Ensure this path is correct
 
+const DEFAULT_OVERSIZED_PREMIUM = 100;
+
 const TeesPage = () => {
   const [teesProducts, setTeesProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,11 @@ const TeesPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {teesProducts.map(product => (
+            (() => {
+              const regularFitPrice = Number(product.price) || 0;
+              const oversizedFitPrice = regularFitPrice + (Number(product.oversizedPremium) || DEFAULT_OVERSIZED_PREMIUM);
+
+              return (
             <Link
               to={`/product/${product._id || product.id}`}
               key={product._id || product.id}
@@ -61,7 +68,10 @@ const TeesPage = () => {
                   {product.name}
                 </h3>
                 <p className="text-gray-400 font-mono">
-                  From Rs. {product.price}.00
+                  Regular Fit: Rs. {regularFitPrice}.00
+                </p>
+                <p className="text-gray-400 font-mono">
+                  Oversized Fit: Rs. {oversizedFitPrice}.00
                 </p>
                 <p
                   style={{
@@ -74,6 +84,8 @@ const TeesPage = () => {
                 </p>
               </div>
             </Link>
+              );
+            })()
           ))}
         </div>
       </div>
