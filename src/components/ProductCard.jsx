@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/ProductCard.css";
+// import "../styles/ProductCard.css";
 
 const ProductCard = ({ product, onAddToCart }) => (
   <div className="product-card pop">
@@ -12,6 +12,15 @@ const ProductCard = ({ product, onAddToCart }) => (
         <h3>{product.name}</h3>
       </Link>
       <p className="product-price">₹{product.price}</p>
+      <p
+          style={{
+            color: product.inStock ? "green" : "red",
+            fontWeight: "bold",
+            marginBottom: "0.5rem",
+          }}
+        >
+          {isInStock ? "In Stock" : "Out of Stock"}
+        </p>
       <button className="add-cart-btn" onClick={() => onAddToCart(product)}>
         Add to Cart
       </button>
@@ -19,4 +28,4 @@ const ProductCard = ({ product, onAddToCart }) => (
   </div>
 );
 
-export default ProductCard;
+export default ProductCard; 

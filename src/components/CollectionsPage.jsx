@@ -4,52 +4,75 @@ import { Link } from "react-router-dom";
 const collections = [
   {
     name: "Posters",
-    image: "src/images/collection-merch.jpg", // Using existing image as fallback
-    link: "/posters",
+    // Changed path to reference from the public root
+    image: "src/images/collection-posters.jpg",
+    link: "/posters"
   },
   {
     name: "Merchandise",
-    image: "src/images/collection-posters.jpg", // Using existing image as fallback
-    link: "/tees",
+    // Changed path to reference from the public root
+    image: "src/images/collection-merch.jpg",
+    link: "/tees"
   },
   {
     name: "Tote Bags",
-    image: "src/images/collection-tote.jpg", // Using existing image as fallback
-    link: "/tote-bags",
+    // Changed path to reference from the public root
+    image: "src/images/collection-tote.jpg",
+    link: "/tote-bags"
   },
+  {
+    name: "Accessories",
+    image: "src/images/collection-merch.jpg",
+    link: "/accessories"
+  },
+  {
+    name: "Pouch Bags",
+    image: "src/images/collection-tote.jpg",
+    link: "/pouch-bags"
+  },
+  {
+    name: "Crop Tops",
+    image: "src/images/collection-merch.jpg",
+    link: "/crop-tops"
+  },
+  {
+    name: "Customise",
+    image: "src/images/collection-posters.jpg",
+    link: "/customise"
+  }
 ];
 
 const CollectionsPage = () => (
-  <div className="min-h-screen bg-black">
-    <div className="section pt-20 sm:pt-24">
-      <h1 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-black text-white text-center mb-4 sm:mb-6 uppercase tracking-wider">
-        Collections
+  <div className="bg-main-bg min-h-screen py-20">
+    <div className="max-w-6xl mx-auto px-6">
+      <h1 className="text-5xl font-black text-white text-center mb-6 font-mono tracking-wider uppercase">
+        COLLECTIONS
       </h1>
-      <p className="font-mono text-gray-300 text-base sm:text-lg text-center max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed">
-        All our product collections featuring designs from music, philosophy,
-        esoterica, movie-culture, memes, and much more.
+      <p className="text-xl text-gray-300 text-center mb-16 max-w-4xl mx-auto font-mono leading-relaxed">
+        All our product collections featuring designs from music, philosophy, esoterica, movie-culture, memes, and much more.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
-        {collections.map((col) => (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {collections.map(col => (
           <Link
             to={col.link}
             key={col.name}
-            className="group collection-card"
+            className="group relative overflow-hidden rounded-2xl bg-gray-900 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl no-underline"
           >
-            <div className="relative overflow-hidden">
+            <div className="aspect-square overflow-hidden">
               <img
-                src={col.image}
+                src={col.image} // This path will now correctly resolve if images are in /public/images
                 alt={col.name}
-                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>
-            <div className="p-4 sm:p-6 text-center">
-              <h3 className="font-mono text-lg sm:text-xl font-bold text-white uppercase tracking-wider group-hover:text-groovy-purple transition-colors duration-300">
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h3 className="text-2xl font-black text-white font-mono tracking-wider uppercase">
                 {col.name}
               </h3>
             </div>
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-main-purple transition-colors duration-300 rounded-2xl"></div>
           </Link>
         ))}
       </div>

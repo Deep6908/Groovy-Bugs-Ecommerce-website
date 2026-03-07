@@ -1,7 +1,18 @@
 import React from "react";
 import { SignIn as ClerkSignIn } from "@clerk/clerk-react";
+import { useEffect } from 'react';
+import { useUser } from '@clerk/clerk-react';
+import useClerkSync from "../Utils/ClerkSync"; // ONLY if alias `@` points to `src/`
 
 const SignIn = () => {
+  const { isSignedIn } = useUser();
+  const syncUser = useClerkSync();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      syncUser(); // send to backend
+    }
+  }, [isSignedIn]);
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-groovy-gray/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-2xl">

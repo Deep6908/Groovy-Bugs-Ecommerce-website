@@ -1,75 +1,151 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Make sure Link is imported
+import { useCart } from "../context/CartContext";
+import { toast } from "react-toastify";
+import { buildWhatsAppOrderUrl } from "../services/whatsapp";
 
-const CartPage = ({ cart, onRemoveFromCart }) => {
-  const grouped = cart.reduce((acc, item) => {
-    acc[item.id] = acc[item.id] || { ...item, quantity: 0 };
-    acc[item.id].quantity++;
-    return acc;
-  }, {});
-  const items = Object.values(grouped);
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const CartPage = () => {
+  const { getGroupedCart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const groupedItems = getGroupedCart();
+  const total = getCartTotal();
+
+  const handleBuyOnWhatsApp = () => {
+    if (groupedItems.length === 0) {
+      toast.error("Your cart is empty.", { theme: "dark" });
+      return;
+    }
+
+    const orderItems = groupedItems.map((item) => ({
+      name: item.name,
+      size: item.size,
+      quantity: item.quantity,
+    }));
+
+    const whatsappUrl = buildWhatsAppOrderUrl({
+      items: orderItems,
+      total,
+    });
+
+    if (!whatsappUrl) {
+      toast.error("Set VITE_WHATSAPP_ORDER_NUMBER to enable WhatsApp orders.", { theme: "dark" });
+      return;
+    }
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
-    <div className="min-h-screen bg-groovy-dark">
-      <div className="section pt-20 sm:pt-24">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-8 text-center uppercase tracking-wider">
-            Your Cart
-          </h1>
-          
-          {items.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-white text-lg sm:text-xl">Your cart is empty.</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {items.map(item => (
-                <div key={item.id} className="bg-groovy-gray rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl bg-groovy-dark" 
+    <section className="min-h-screen bg-main-bg py-20 px-6">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-4xl font-black text-white text-center mb-12 font-mono tracking-wider uppercase">
+          Your Cart
+        </h2>
+
+        {groupedItems.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-2xl text-gray-400 mb-8 font-mono">Your cart is empty.</p>
+            {/* Changed button to Link for navigation */}
+            <Link
+              to="/shop"
+              className="inline-block bg-main-purple text-white border-none rounded-2xl py-3 px-8 text-lg font-bold cursor-pointer hover:bg-purple-600 transition-colors duration-200 font-mono tracking-wider no-underline"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-8">
+            {/* Cart Items */}
+            <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+              {groupedItems.map((item, index) => (
+                <div key={`${item._id || item.id}-${item.size || 'default'}`} className={`flex items-center gap-6 py-6 ${index !== groupedItems.length - 1 ? 'border-b border-gray-800' : ''}`}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-24 h-24 object-cover rounded-lg bg-gray-800 flex-shrink-0"
                   />
-                  <div className="flex-1 flex flex-col items-center sm:items-start gap-2">
-                    <h3 className="text-white font-bold text-lg sm:text-xl mb-2">{item.name}</h3>
-                    <p className="text-gray-300 text-base sm:text-lg">₹{item.price}</p>
-                    {/* Quantity Controls */}
-                    <div className="flex items-center justify-center gap-2 bg-groovy-dark rounded-lg overflow-hidden w-fit mt-2">
+
+                  <div className="flex-1">
+                    <h4 className="text-xl font-bold text-white mb-2 font-mono">{item.name}</h4>
+                    <p className="text-gray-400 mb-2 font-mono">₹{item.price}</p>
+                    {item.size && (
+                      <p className="text-sm text-gray-500 mb-2 font-mono">Size: {item.size}</p>
+                    )}
+
+                    <div className="flex items-center gap-4 mt-4">
+                      <div className="flex items-center gap-0 rounded-lg overflow-hidden">
+                        <button
+                          className="bg-main-purple text-white border-none w-10 h-10 text-lg flex justify-center items-center cursor-pointer transition-colors duration-200 hover:bg-purple-600 disabled:opacity-50"
+                          onClick={() => updateQuantity(item.items[0].cartId, -1)}
+                          disabled={item.quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="text-white text-lg font-bold min-w-12 text-center bg-gray-800 h-10 flex justify-center items-center border-t border-b border-gray-600">
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="bg-main-purple text-white border-none w-10 h-10 text-lg flex justify-center items-center cursor-pointer transition-colors duration-200 hover:bg-purple-600"
+                          onClick={() => updateQuantity(item.items[0].cartId, 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+
                       <button
-                        onClick={() => onRemoveFromCart(item.id, 'decrement')}
-                        disabled={item.quantity <= 1}
-                        className="bg-groovy-purple text-white w-8 h-8 flex items-center justify-center hover:bg-purple-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-transparent text-red-400 border border-red-400 py-2 px-4 rounded cursor-pointer text-sm transition-all duration-200 hover:bg-red-400 hover:text-white font-mono"
+                        onClick={() => removeFromCart(item.items[0].cartId)}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" /></svg>
-                      </button>
-                      <span className="text-white font-bold px-3 py-2 min-w-[2rem] text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => onRemoveFromCart(item.id, 'increment')}
-                        className="bg-groovy-purple text-white w-8 h-8 flex items-center justify-center hover:bg-purple-600 transition-colors duration-200"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                        Remove
                       </button>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => onRemoveFromCart(item.id)}
-                    className="text-red-400 hover:text-red-300 text-sm transition-colors duration-200 mt-2"
-                  >
-                    Remove
-                  </button>
+
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-white font-mono">₹{item.price * item.quantity}</p>
+                  </div>
                 </div>
               ))}
-              
-              <div className="bg-groovy-gray rounded-2xl p-4 sm:p-6 text-center">
-                <div className="text-white font-bold text-xl sm:text-2xl">
-                  Total: ₹{total}
+            </div>
+
+            {/* Cart Summary */}
+            <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+              <h3 className="text-2xl font-bold text-white mb-6 font-mono">Order Summary</h3>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-gray-300 font-mono">
+                  <span>Subtotal</span>
+                  <span>₹{total}</span>
+                </div>
+                <div className="flex justify-between text-gray-300 font-mono">
+                  <span>Shipping</span>
+                  <span>FREE</span>
+                </div>
+                <div className="flex justify-between text-gray-300 font-mono">
+                  <span>Tax</span>
+                  <span>₹0</span>
+                </div>
+                <div className="border-t border-gray-700 pt-4">
+                  <div className="flex justify-between text-xl font-bold text-white font-mono">
+                    <span>Total</span>
+                    <span>₹{total}</span>
+                  </div>
                 </div>
               </div>
+
+              <button className="w-full bg-main-purple text-white border-none rounded-2xl py-4 text-lg font-bold cursor-pointer hover:bg-purple-600 transition-colors duration-200 font-mono tracking-wider mb-3">
+                PROCEED TO CHECKOUT
+              </button>
+              <button
+                className="w-full bg-green-600 text-white border-none rounded-2xl py-4 text-lg font-bold cursor-pointer hover:bg-green-500 transition-colors duration-200 font-mono tracking-wider"
+                onClick={handleBuyOnWhatsApp}
+              >
+                BUY ON WHATSAPP
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 };
 

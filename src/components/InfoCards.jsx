@@ -4,45 +4,49 @@ const cards = [
   {
     image: "/images/playlist-wall.jpg",
     heading: "pure customization",
-    desc: "display your playlist with poster prints each customized to your choice and taste",
+    desc: "display your playlist with poster prints each customized to your choice and taste"
   },
   {
     image: "/images/thick-high-quality-poster-paper.jpg",
     heading: "build",
-    desc: "heavy-end machinery for our vibrant prints. matte finish poster paper w/ a thickness of 300gsm and an extra matte laminate for that premium texture",
+    desc: "heavy-end machinery for our vibrant prints. matte finish poster paper w/ a thickness of 300gsm and an extra matte laminate for that premium texture"
   },
   {
     image: "/images/creation-wall.jpg",
     heading: "creation",
-    desc: "every single order of ours is unique in its own kind of way",
-  },
+    desc: "every single order of ours is unique in its own kind of way"
+  }
 ];
 
 const InfoCards = () => (
-  <section className="section bg-black">
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-      {cards.map((card, i) => (
-        <div
-          key={i}
-          className="bg-gray-900 rounded-none overflow-hidden shadow-2xl info-card-glow"
-        >
-          <img
-            src={card.image}
-            alt={card.heading}
-            className="w-full h-48 sm:h-56 lg:h-64 object-cover"
-          />
-          <div className="p-4 sm:p-6">
-            <h3 className="font-mono text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 uppercase tracking-wide">
-              {card.heading}
-            </h3>
-            <p className="font-mono text-white text-sm sm:text-base leading-relaxed tracking-wide">
-              {card.desc}
-            </p>
+  <div className="bg-main-bg py-20">
+    <div className="max-w-7xl mx-auto px-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {cards.map((card, i) => (
+          <div 
+            key={i}
+            className="group bg-gray-900 rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl border border-gray-800 hover:border-main-purple"
+          >
+            <div className="aspect-video overflow-hidden">
+              <img 
+                src={card.image} 
+                alt={card.heading} 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl font-black text-white mb-4 font-mono uppercase tracking-wider">
+                {card.heading}
+              </h3>
+              <p className="text-gray-300 leading-relaxed font-mono">
+                {card.desc}
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </section>
+  </div>
 );
 
 export default InfoCards;
