@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/HeroBanner.css";
+// import "../styles/HeroBanner.css";
 
 const HeroBanner = () => (
   <section className="hero-banner-section">

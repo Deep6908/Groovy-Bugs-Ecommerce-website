@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useParams,
-  useLocation,
-  Navigate,
-} from "react-router-dom";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { BrowserRouter as Router, Routes, Route, useParams, Link, useLocation, Navigate } from "react-router-dom";
+import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-react";
 import Navbar from "./components/Navbar";
-import CartSidebar from "./components/CartSidebar";
+import Hero from "./components/Hero";
+import ProductList from "./components/ProductList";
 import Footer from "./components/Footer";
 import CartPage from "./components/CartPage";
+import CartSidebar from "./components/CartSidebar";
 import ProductDetails from "./components/ProductDetails";
+import ShopPage from "./components/ShopPage";
+import HeroSlider from "./components/HeroSlider";
+import ProductSlider from "./components/ProductSlider";
 import CollectionsPage from "./components/CollectionsPage";
 import PostersPage from "./components/PostersPage";
 import ToteBagsPage from "./components/ToteBagsPage";
+import AccessoriesPage from "./components/AccessoriesPage";
+import PouchBagsPage from "./components/PouchBagsPage";
+import CropTopsPage from "./components/CropTopsPage";
 import TeesPage from "./components/TeesPage";
+import CustomisePage from "./components/CustomisePage";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import UserProfile from "./components/UserProfile";
-import HeroSlider from "./components/HeroSlider";
-import ProductSlider from "./components/ProductSlider";
 import InfoCards from "./components/InfoCards";
-import products from "./data/products";
-import extraPosters from "./data/extraPosters";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ProductProvider } from './context/ProductContext';
+import { CartProvider } from './context/CartContext';
+import ClerkSync from "./components/ClerkSync";
+import CompleteProfile from "./components/CompleteProfile";
+
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -34,8 +37,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen bg-main-bg">
+        <div className="text-white text-xl font-mono">Loading...</div>
       </div>
     );
   }
@@ -50,178 +53,126 @@ const ProtectedRoute = ({ children }) => {
 function AppContent() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
-
-  const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem("cart");
-      return savedCart ? JSON.parse(savedCart) : [];
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
-      return [];
-    }
-  });
-
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
-  const isAuthPage =
-    location.pathname === "/sign-in" || location.pathname === "/sign-up";
+  const isAuthPage = location.pathname === "/sign-in" || location.pathname === "/sign-up";
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const handleAddToCart = (product) => {
-    if (!isLoaded) {
-      return;
-    }
-
-    if (!isSignedIn) {
-      toast.error("Please Sign In first!");
-      return;
-    }
-
-    setCart((prev) => [...prev, product]);
-    setIsCartOpen(true);
-    toast.success("Hurray! Your product has been added to the Cart!");
-  };
-
-  const handleRemoveFromCart = (id) => {
-    setCart((prev) => {
-      const idx = prev.findIndex((item) => item.id === id);
-      if (idx !== -1) {
-        return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
-      }
-      return prev;
-    });
-  };
-
-  const handleIncreaseQuantity = (id) => {
-    const productToAdd = cart.find((item) => item.id === id);
-    if (productToAdd) {
-      setCart((prev) => [...prev, productToAdd]);
-    }
-  };
-
-  const handleDecreaseQuantity = (id) => {
-    setCart((prev) => {
-      const idx = prev.findIndex((item) => item.id === id);
-      if (idx !== -1) {
-        return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
-      }
-      return prev;
-    });
-  };
+  // --- NEW STATE FOR CART SIDEBAR ---
+  const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    } catch (error) {
-      console.error("Error saving cart to localStorage:", error);
+    const checkProfileCompletion = async () => {
+      if (isSignedIn && user && isLoaded) {
+        try {
+          const res = await fetch(`/api/users/profile-details/${user.id}`);
+          if (!res.ok) {
+            console.warn(`Profile details for user ${user.id} not found or error: ${res.status}`);
+            setShowProfileModal(true);
+            return;
+          }
+          const data = await res.json();
+
+          if (!data || !data.name || !data.gender) {
+            setShowProfileModal(true);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile details:", error);
+          setShowProfileModal(true);
+        }
+      }
+    };
+
+    if (isLoaded) {
+        checkProfileCompletion();
     }
-  }, [cart]);
+  }, [isSignedIn, user, isLoaded]);
 
-  const toggleCart = () => {
-    setIsCartOpen(!isCartOpen);
+  const handleCloseModal = () => setShowProfileModal(false);
+
+  // --- NEW FUNCTION TO TOGGLE CART SIDEBAR ---
+  const toggleCartSidebar = () => {
+    setIsCartSidebarOpen(prev => !prev);
   };
-
-  const ProductDetailsWrapper = ({ onAddToCart }) => {
-    const { id } = useParams();
-    const product =
-      products.find((p) => p.id === Number(id)) ||
-      extraPosters.find((p) => p.id === Number(id));
-    return <ProductDetails product={product} onAddToCart={onAddToCart} />;
-  };
-
-  // Show loading screen while Clerk is initializing
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
 
   return (
-    <div
-      className={`min-h-screen bg-black ${
-        isAuthPage ? "bg-cover bg-center bg-no-repeat" : ""
-      }`}
-      style={isAuthPage ? { backgroundImage: "url('/images/bg.jpg')" } : {}}
-    >
-      <div className="grain-overlay"></div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        className="mt-16 sm:mt-20"
-        toastClassName="bg-gray-800 text-white border border-groovy-purple"
-      />
-
-      <Navbar cartCount={cart.length} onCartClick={toggleCart} />
-
-      <CartSidebar
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        onRemoveFromCart={handleRemoveFromCart}
-        onIncreaseQuantity={handleIncreaseQuantity}
-        onDecreaseQuantity={handleDecreaseQuantity}
-      />
-
-      <main className="min-h-screen">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div className="bg-black">
-                <HeroSlider />
-                <section className="section bg-black">
-                  <h2 className="text-white text-xl sm:text-2xl font-semi-bold font-display  uppercase mb-10 text-center">
-                    Featured Products
-                  </h2>
-                  <ProductSlider
-                    products={products.filter((p) => p.featured)}
-                    onAddToCart={handleAddToCart}
-                  />
-                </section>
-                <InfoCards />
-              </div>
-            }
+    <ProductProvider>
+      <CartProvider>
+        <ClerkSync />
+        <div className={`min-h-screen ${isAuthPage ? "login-bg" : "bg-main-bg"}`}>
+          <div className="grain-overlay"></div>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
           />
-          <Route path="/shop" element={<CollectionsPage />} />
-          <Route
-            path="/product/:id"
-            element={<ProductDetailsWrapper onAddToCart={handleAddToCart} />}
-          />
-          <Route path="/posters" element={<PostersPage />} />
-          <Route path="/tote-bags" element={<ToteBagsPage />} />
-          <Route path="/tees" element={<TeesPage />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/cart"
-            element={
-              <ProtectedRoute>
-                <CartPage cart={cart} onRemoveFromCart={handleRemoveFromCart} />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
 
-      <Footer />
-    </div>
+          {/* Pass toggleCartSidebar to Navbar */}
+          {!isAuthPage && <Navbar onCartClick={toggleCartSidebar} />}
+
+          {showProfileModal && isSignedIn && (
+            <CompleteProfile onClose={handleCloseModal} />
+          )}
+
+          <div className="relative z-10">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <HeroSlider />
+                    <h2 className="section-title text-center text-white text-4xl font-black font-mono tracking-wider uppercase my-12">Featured Products</h2>
+                    <ProductSlider />
+                    <InfoCards />
+                  </>
+                }
+              />
+              <Route path="/shop" element={<CollectionsPage />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/posters" element={<PostersPage />} />
+              <Route path="/tote-bags" element={<ToteBagsPage />} />
+              <Route path="/accessories" element={<AccessoriesPage />} />
+              <Route path="/pouch-bags" element={<PouchBagsPage />} />
+              <Route path="/crop-tops" element={<CropTopsPage />} />
+              <Route path="/tees" element={<TeesPage />} />
+              <Route path="/customise" element={<CustomisePage />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/sign-up" element={<SignUp />} />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <CartPage />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </div>
+
+          {/* Pass isCartSidebarOpen and toggleCartSidebar to CartSidebar */}
+          {!isAuthPage && (
+            <CartSidebar isOpen={isCartSidebarOpen} onClose={toggleCartSidebar} />
+          )}
+
+          {!isAuthPage && <Footer />}
+        </div>
+      </CartProvider>
+    </ProductProvider>
   );
 }
 

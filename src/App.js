@@ -9,7 +9,7 @@ import CartPage from "./components/CartPage";
 import CartSidebar from "./components/CartSidebar";
 import products from "./data/products";
 import ProductDetails from "./components/ProductDetails";
-import ShopPage from "./components/ShopPage";
+// import ShopPage from "./components/ShopPage";
 import HeroSlider from "./components/HeroSlider";
 import ProductSlider from "./components/ProductSlider";
 import CollectionsPage from "./components/CollectionsPage";
