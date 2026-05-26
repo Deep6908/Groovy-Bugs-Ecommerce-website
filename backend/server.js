@@ -13,8 +13,9 @@ dotenv.config();
 const REQUIRED_ENV = ['MONGODB_URI', 'CLERK_SECRET_KEY', 'CLERK_PUBLISHABLE_KEY'];
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) {
-    console.error(`FATAL: Missing required env var "${key}". Check backend/.env`);
-    process.exit(1);
+    // In serverless environments, process.exit() causes FUNCTION_INVOCATION_FAILED.
+    // Log the error and continue — the health check will surface the issue.
+    console.error(`FATAL: Missing required env var "${key}". Check backend/.env or Vercel Environment Variables.`);
   }
 }
 
@@ -83,16 +84,20 @@ try {
 }
 
 // ─── MongoDB ──────────────────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000,
-  heartbeatFrequencyMS:     10000,
-  maxPoolSize:              10,
-})
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  });
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    heartbeatFrequencyMS:     10000,
+    maxPoolSize:              10,
+  })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => {
+      // Don't exit — log only. The function will return 500s for DB operations.
+      console.error('MongoDB connection error:', error.message);
+    });
+} else {
+  console.error('MONGODB_URI not set — database features will not work.');
+}
 
 mongoose.connection.on('disconnected', () => console.warn('MongoDB disconnected. Reconnecting...'));
 mongoose.connection.on('reconnected',  () => console.log('MongoDB reconnected.'));
